@@ -1,0 +1,2 @@
+### GET - 3.4 pobranie filtrowanych zdjęć przez id i nazwę filtra
+GET http://localhost:3000/api/getimage/1781470076283/filter/rotate HTTP/1.1

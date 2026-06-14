@@ -1,0 +1,2 @@
+### GET - 2.4 pobranie jednego taga wg id
+GET http://localhost:3000/api/tags/2 HTTP/1.1

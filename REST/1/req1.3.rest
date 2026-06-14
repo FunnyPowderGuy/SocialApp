@@ -1,0 +1,2 @@
+### GET - 1.3 Pobieranie jsona jednego zdjęcia
+GET http://localhost:3000/api/photos/1711195846479 HTTP/1.1

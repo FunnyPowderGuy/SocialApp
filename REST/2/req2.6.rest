@@ -1,0 +1,11 @@
+### PATCH - 2.6 aktualizacja danych zdjęcia o nowy tag
+PATCH http://localhost:3000/api/photos/tags HTTP/1.1
+Content-Type: application/json
+
+{
+	"id": 1781374797799,
+	"tag": 
+		{
+			"name": "#nowytagdlazdjęcia"
+		}
+}

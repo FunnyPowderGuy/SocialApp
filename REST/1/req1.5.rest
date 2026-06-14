@@ -1,0 +1,2 @@
+### DELETE - 1.5 usuń zdjęcie z dysku oraz wpis json
+DELETE http://localhost:3000/api/photos/1711195846479 HTTP/1.1

@@ -1,0 +1,2 @@
+### GET - 2.3 statystyki
+GET http://localhost:3000/api/tags/stats HTTP/1.1

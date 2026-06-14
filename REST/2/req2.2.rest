@@ -1,0 +1,2 @@
+### GET - 2.2 tagi po konwersji na obiekty
+GET http://localhost:3000/api/tags HTTP/1.1

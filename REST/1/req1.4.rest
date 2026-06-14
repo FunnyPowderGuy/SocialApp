@@ -1,0 +1,7 @@
+### PATCH - 1.4 aktualizacja historii zdjęcia
+PATCH http://localhost:3000/api/photos/1711195846479 HTTP/1.1
+Content-Type: application/json
+
+{
+	"status": "zmienione 1 raz"
+}
