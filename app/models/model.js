@@ -11,3 +11,6 @@ export let tags = rawTags.map((name, id) => ({
 	name,
 	popularity: Math.floor(Math.random() * 1000)
 }));
+
+export const users = [];
+export const blacklistedTokens = [];
