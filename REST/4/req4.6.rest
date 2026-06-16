@@ -1,0 +1,3 @@
+### POST - 4.6 unieważnienie tokena na serwerze (czarna lista)
+POST http://localhost:3000/api/user/logout HTTP/1.1
+Authorization: Bearer TUTAJ_WKLEJ_TOKEN_PO_LOGOWANIU

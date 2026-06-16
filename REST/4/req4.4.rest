@@ -1,0 +1,3 @@
+### POST - 4.4 autoryzacja testowego żądania z użyciem tokena
+POST http://localhost:3000/api/user/auth HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTc4MTYwODgwNTc3MiwiZW1haWwiOiJleGFtcGxlM0BleGFtcGxlLmNvbSIsIm5hbWUiOiJKYW5hIiwiaWF0IjoxNzgxNjA4ODc0LCJleHAiOjE3ODE2OTUyNzR9.HPlVUYTy4rgNog7N8OxDKZwcM6yqCDnwCDpNtwK7ryk

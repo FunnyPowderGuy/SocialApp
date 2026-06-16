@@ -1,0 +1,8 @@
+### POST - 4.3 Logowanie użytkownika
+POST http://localhost:3000/api/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email": "example3@example.com",
+    "password": "mojeSuperHaslo123"
+}

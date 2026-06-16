@@ -1,13 +1,12 @@
+import jsonwebtoken from "jsonwebtoken";
 import { registerUser, confirmUser, loginUser, logoutUser, getAllUsers, getBlacklist } from "../controllers/userController.js";
+import { blacklistedTokens } from "../models/model.js";
 import getRequestData from "../utils/getRequestData.js";
 import sendJson from "../utils/sendJson.js";
-import jsonwebtoken from "jsonwebtoken";
-import { blacklistedTokens } from "../models/model.js";
-import { getAll } from "../controllers/jsonController.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-const usersRouter = async (req, res) => {
+const userRouter = async (req, res) => {
     const { method, url } = req;
 
     const getBearerToken = () => {
@@ -86,7 +85,7 @@ const usersRouter = async (req, res) => {
         if(!token){
             return sendJson(res, 400, { message: "Bearer Token is not defined" });
         }
-        const result = logoutUser();
+        const result = logoutUser(token);
         return sendJson(res, result.status, result);
     }
 
@@ -97,4 +96,4 @@ const usersRouter = async (req, res) => {
     return sendJson(res, 404, { message: "User data not found." })
 }
 
-export default usersRouter;
+export default userRouter;

@@ -5,7 +5,7 @@ import imageRouter from './app/routes/imageRouter.js';
 import tagsRouter from './app/routes/tagsRouter.js';
 import filtersRouter from './app/routes/filtersRouter.js';
 import getImageRouter from './app/routes/getImageRouter.js';
-import usersRouter from './app/routes/userRouter.js';
+import userRouter from './app/routes/userRouter.js';
 
 createServer(async (req, res) => {
 	console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
@@ -19,7 +19,7 @@ createServer(async (req, res) => {
 	} else if(req.url.startsWith("/api/getimage")){
 		await getImageRouter(req, res);
 	} else if(req.url.startsWith("/api/user")){
-		await usersRouter(req, res);
+		await userRouter(req, res);
 	} else{
 		res.writeHead(404, { "Content-Type": "application/json" });
         res.end(JSON.stringify({ message: "Endpoint not found" }));

@@ -1,0 +1,2 @@
+### GET - 4.2 potwierdzenie tokenu użytkownika
+GET http://localhost:3000/api/user/confirm/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGUzQGV4YW1wbGUuY29tIiwiaWF0IjoxNzgxNjA4ODA1LCJleHAiOjE3ODE2MTI0MDV9.lRi6UiWc8jx6gCK4jzwBc0gpqElu2R3YdI5HMm0GScw HTTP/1.1

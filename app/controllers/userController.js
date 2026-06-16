@@ -11,12 +11,12 @@ export const registerUser = async (userData) =>{
     const { name, lastname, email, password } = userData;
 
     if(!name || !lastname || !email || !password){
-        return { error: "All fields are required" };
+        return { error: "All fields are required", status: 400 };
     }
 
     const userExists = users.find(u => u.email == email);
     if(userExists){
-        return { error: "User with this email already exists" };
+        return { error: "User with this email already exists", status: 409 };
     }
 
     const hashedPassword = await hash(password, 10);
@@ -33,7 +33,7 @@ export const registerUser = async (userData) =>{
     users.push(newUser);
 
     const confirmToken = sign({ email: newUser.email }, JWT_SECRET, { expiresIn: "1h" });
-    const confirmLink = `http://localhost:${process.env.PORT}/api/user/confirm/${$confirmToken}`;
+    const confirmLink = `http://localhost:${process.env.PORT}/api/user/confirm/${confirmToken}`;
 
     return {
         status: 201,
@@ -45,7 +45,7 @@ export const registerUser = async (userData) =>{
 
 export const confirmUser = async (token) =>{
     try{
-        const decode = verifya(token, JWT_SECRET);
+        const decode = verify(token, JWT_SECRET);
         const user = users.find(u => u.email == decode.email);
 
         if(!user){
@@ -77,7 +77,7 @@ export const loginUser = async (credentials) =>{
 
     const isPasswordValid = await compare(password, user.password);
     if(!isPasswordValid){
-        return { error: "Invalid email or password", status: 4001 };
+        return { error: "Invalid email or password", status: 401 };
     }
 
     if(!user.confirmed){
@@ -90,9 +90,9 @@ export const loginUser = async (credentials) =>{
 }
 
 export const logoutUser = (token) =>{
-    const decode = decode(token);
+    const decoded = decode(token);
 
-    const expiryTime = decode && decode.exp ? decode.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000;
+    const expiryTime = decoded && decoded.exp ? decoded.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000;
 
     blacklistedTokens.push({
         token,
