@@ -8,9 +8,9 @@ const { sign, verify, decode } = jsonwebtoken;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 export const registerUser = async (userData) =>{
-    const { name, lastname, email, password } = userData;
+    const { name, lastName, email, password } = userData;
 
-    if(!name || !lastname || !email || !password){
+    if(!name || !lastName || !email || !password){
         return { error: "All fields are required", status: 400 };
     }
 
@@ -24,7 +24,7 @@ export const registerUser = async (userData) =>{
     const newUser = {
         id: Date.now(),
         name,
-        lastname,
+        lastName,
         email,
         confirmed: false,
         password: hashedPassword

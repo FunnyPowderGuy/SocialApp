@@ -1,0 +1,18 @@
+### TEST 1: BROADCAST (Wiadomość do wszystkich połączonych użytkowników)
+POST http://localhost:3000/api/notifications/send
+Content-Type: application/json
+
+{
+    "message": "Uwaga! To jest ważny komunikat dla wszystkich użytkowników!"
+}
+
+
+### TEST 2: UNICAST (Wiadomość skierowana TYLKO do Ciebie)
+# 🚨 WAŻNE: Podmień ID-A1B2C na identyfikator, który aktualnie widzisz w przeglądarce!
+POST http://localhost:3000/api/notifications/send
+Content-Type: application/json
+
+{
+    "to": "ID-6UXA2",
+    "message": "Cześć! Ta wiadomość powinna trafić tylko do Twojego okna."
+}

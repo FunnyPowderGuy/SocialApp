@@ -14,3 +14,5 @@ export let tags = rawTags.map((name, id) => ({
 
 export const users = [];
 export const blacklistedTokens = [];
+
+export const clients = [];

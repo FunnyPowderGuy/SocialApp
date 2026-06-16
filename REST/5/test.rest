@@ -1,0 +1,59 @@
+@baseUrl = http://localhost:3000
+@userEmail = testownik4@gmail.com
+@userPassword = password123123
+
+### Rejestracja
+POST {{baseUrl}}/api/user/register HTTP/1.1
+content-type: application/json
+
+{  
+	"name": "Jana",
+	"lastName": "Testowy",
+	"email": "{{userEmail}}",
+	"password": "{{userPassword}}"
+}
+
+### Potwierdzenie konta
+GET {{baseUrl}}/api/user/confirm/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3Rvd25pazRAZ21haWwuY29tIiwiaWF0IjoxNzgxNjI3OTc3LCJleHAiOjE3ODE2MzE1Nzd9.MIBiG0PkeOLxhniSY2t8Mym-1c8QsBsj0SOJu-ICmZkHTTP/1.1
+
+### Logowanie
+# @name loginRequest
+POST {{baseUrl}}/api/user/login HTTP/1.1
+content-type: application/json
+
+{ 
+	"email": "{{userEmail}}",
+	"password": "{{userPassword}}"
+}
+
+### zapisanie pobranego wcześniej tokena
+@authToken = {{loginRequest.response.body.token}}
+
+
+### GET PROFILE 
+GET {{baseUrl}}/api/profile HTTP/1.1
+Authorization: Bearer {{authToken}}
+
+
+### PATCH PROFILE
+PATCH {{baseUrl}}/api/profile HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "name": "NoweImie",
+    "lastName": "NoweNazwisko"
+}
+
+
+### UPLOAD ZDJĘCIA
+POST {{baseUrl}}/api/profile HTTP/1.1
+Authorization: Bearer {{authToken}}
+Content-Type: multipart/form-data; boundary=----FormBoundary1234
+
+------FormBoundary1234
+Content-Disposition: form-data; name="file"; filename="user.png"
+Content-Type: image/png
+
+< ./user.png
+------FormBoundary1234

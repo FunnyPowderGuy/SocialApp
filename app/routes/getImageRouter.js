@@ -33,6 +33,14 @@ const getImageRouter = async (req, res) => {
 		}
 	};
 
+	const profileMatch = url.match(/^\/api\/getimage\/profile\/([^\/]+)\/([^\/]+)$/);
+	if(profileMatch){
+		const email = profileMatch[1];
+		const filename = profileMatch[2];
+
+		targetUrl = path.join("uploads", email, "profile", filename);
+	}
+
 	if(targetUrl){
 		try{
 			const diskPath = path.join(process.cwd(), targetUrl);
