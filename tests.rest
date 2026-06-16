@@ -1,0 +1,129 @@
+### 1
+# dodanie zdjęcia (nie profilowego) do katalogu (nie wymaga usera)
+# @name uploadPhoto
+POST http://localhost:3000/api/photos
+Content-Type: multipart/form-data; boundary=boundary123
+
+--boundary123
+Content-Disposition: form-data; name="file"; filename="view.jpg"
+Content-Type: image/jpeg
+
+< ./view.jpg
+--boundary123--
+
+
+@photoId = {{uploadPhoto.response.body.id}}
+
+
+### 2
+# otagowanie tego zdjęcia (widać pod /api/photos) (nie wymaga usera)
+PATCH http://localhost:3000/api/photos/tags/mass
+Content-Type: application/json
+
+{
+	"id": "{{photoId}}",
+	"tags": ["woda", "krajobraz", "krakow"]
+}
+
+
+### GET dla punktu 2
+GET http://localhost:3000/api/photos
+
+
+### 3
+# użycie filtra na tym zdjęciu i pobranie go (nie wymaga usera)-
+# @name applyFilter
+PATCH http://localhost:3000/api/filters HTTP/1.1
+Content-Type: application/json
+
+{   
+	"id": "{{photoId}}",
+	"lastChange": "grayscale"
+}
+
+### GET dla punktu 3
+GET http://localhost:3000/api/getimage?id={{photoId}}&filter=grayscale
+
+### 4 rejestracja
+# zarejestrowanie, logowanie i uzyskanie tokenu do autoryzacji usera (widać pod /api/user) 
+POST http://localhost:3000/api/user/register
+Content-Type: application/json
+
+{
+	"name": "Mateusz",
+	"lastName": "Makaryk",
+	"email": "mmakaryk99@uczen.tl.krakow.pl",
+	"password": "SuperHaslo123"
+}
+
+### 4 logowanie
+# @name loginUser
+POST http://localhost:3000/api/user/login
+Content-Type: application/json
+
+{
+	"email": "mmakaryk99@uczen.tl.krakow.pl",
+	"password": "SuperHaslo123"
+}
+
+### GET dla punktu 4
+GET http://localhost:3000/api/user HTTP/1.1
+
+@token = ?
+
+### 5
+# aktualizacja danych osobowych usera, po autoryzacji tokenem (widać pod /api/user)
+PATCH http://localhost:3000/api/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"name": "Mateusz_zmienione_imie",
+	"lastName": "Makaryk_zmienione_nazwisko"
+}
+
+### GET dla punktu 5
+GET http://localhost:3000/api/profile HTTP/1.1
+Authorization: Bearer {{token}}
+
+### 6
+# dodanie trzech wersji zdjęcia profilowego usera, po autoryzacji tokenem (widać pod /api/user) 
+POST http://localhost:3000/api/profile/avatar
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=avatarBoundary
+
+--avatarBoundary
+Content-Disposition: form-data; name="file"; filename="avatar.jpg"
+Content-Type: image/jpeg
+
+< ./image_de05e7.jpg
+--avatarBoundary--
+
+### GET dla punktu 6
+# Obecnie nie działa pod /api/user a pod /api/profile napraw to
+
+### 7 pobranie tych danych (zdjęcia, dane osobowe) z poziomu rest clienta 
+@ClientId = ID-12345
+GET http://localhost:3000/api/profile
+Authorization: Bearer {{token}}
+
+
+### BroadCast punkt 8
+# dowolny broadcast między zalogowanymi dwoma userami (SSE)
+POST http://localhost:3000/api/notifications/send
+Content-Type: application/json
+
+{
+    "message": "Uwaga! To jest ważny komunikat dla wszystkich użytkowników!"
+}
+
+### Unicast po otagowaniu zdjęcia przez innego usera (nie działa jak narazie)
+PATCH http://localhost:3000/api/photos/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"id": "{{photoId}}",
+	"tag": { "name": "super_fotka" },
+	"targetClientId": "{{ClientId}}"
+}
