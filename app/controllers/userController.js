@@ -102,5 +102,7 @@ export const logoutUser = (token) =>{
     return { message: "Logout successfull" };
 }
 
-export const getAllUsers = () => users;
+export const getAllUsers = () => {
+    return users.map(({ password, ...userWithoutPassword }) => userWithoutPassword)
+};
 export const getBlacklist = () => blacklistedTokens;

@@ -13,6 +13,6 @@ POST http://localhost:3000/api/notifications/send
 Content-Type: application/json
 
 {
-    "to": "ID-6UXA2",
+    "to": "ID-NAM9G",
     "message": "Cześć! Ta wiadomość powinna trafić tylko do Twojego okna."
 }

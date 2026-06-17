@@ -4,7 +4,6 @@ import { existsSync } from "fs";
 import path from "path";
 import sharp from "sharp";
 import { users } from "../models/model.js";
-import { profile } from "console";
 
 const PORT = process.env.PORT;
 

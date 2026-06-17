@@ -1,7 +1,12 @@
+import jsonwebtoken from "jsonwebtoken";
 import { updatePhotoTags, updatePhotoTagsMass, getPhotoTags, addPhoto, getAll, getById, patchById, removeById } from "../controllers/jsonController.js";
 import { saveFile, deleteFile } from "../controllers/fileController.js";
 import getRequestData from "../utils/getRequestData.js";
 import sendJson from "../utils/sendJson.js";
+import { unicastNotification } from "../controllers/notificationsController.js";
+import { clients } from "../models/model.js";
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const imageRouter = async (req, res) => {
 	const { method, url } = req;
@@ -9,6 +14,17 @@ const imageRouter = async (req, res) => {
 	if (url == "/api/photos" && method == "POST") {
         try {
             const photo = await saveFile(req);
+
+            if(req.headers.authorization && req.headers.authorization.startsWith("Bearer ")){
+                const token = req.headers.authorization.split(" ")[1];
+                try{
+                    const decoded = jsonwebtoken.verify(token, JWT_SECRET);
+                    photo.authorEmail = decoded.email;
+                } catch(err){
+                    console.error("something went wrong");
+                }
+            }
+
             addPhoto(photo);
             return sendJson(res, 200, photo);
         } catch (e) {
@@ -48,10 +64,37 @@ const imageRouter = async (req, res) => {
     }
 
 	if(url == "/api/photos/tags" && method == "PATCH"){
-		const body = JSON.parse(await getRequestData(req));
+		try{
+            const body = JSON.parse(await getRequestData(req));
 
-		const updatedPhoto = updatePhotoTags(body.id, body.tag);
-		return updatedPhoto ? sendJson(res, 200, updatedPhoto) : sendJson(res, 404, { message: "Photo not found" });
+            let taggerId = "Unknown";
+            if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+                const token = req.headers.authorization.split(" ")[1];
+                try {
+                    const decoded = jsonwebtoken.verify(token, JWT_SECRET);
+                    taggerId = decoded.id;
+                } catch (e) {
+                    return sendJson(res, 401, { message: "Invalid token" });
+                }
+            }
+
+            const updatedPhoto = updatePhotoTagsMass(body.id, body.tags);
+            if(!updatedPhoto){
+                return sendJson(res, 404, { message: "The photo was not found" });
+            }
+
+            if(updatedPhoto.authorEmail){
+                const authorClient = clients.find(client => client.userEmail == updatedPhoto.authorEmail);
+                if(authorClient){
+                    const messageText = `User with id: ${taggerId} just tagged your photo!`;
+                    unicastNotification(updatedPhoto.authorEmail, messageText);
+                }
+            }
+
+            return sendJson(res, 200 ,updatedPhoto)
+        } catch(err){
+            return sendJson(res, 500, { message: "Error aplying mass tags" });
+        }
 	}
 
 	if(url == "/api/photos/tags/mass" && method == "PATCH"){

@@ -32,7 +32,7 @@ export const subscribeClient = (req, res, email) => {
 		if(index != -1){
 			clients.splice(index, 1);
 		}
-		console.log(`[SSE User ${email} has disconnected. Currently active: ${clients.length}`);
+		console.log(`[SSE] User ${email} has disconnected. Currently active: ${clients.length}`);
 	})
 };
 
