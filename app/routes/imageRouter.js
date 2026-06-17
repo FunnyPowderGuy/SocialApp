@@ -1,5 +1,5 @@
 import jsonwebtoken from "jsonwebtoken";
-import { updatePhotoTags, updatePhotoTagsMass, getPhotoTags, addPhoto, getAll, getById, patchById, removeById } from "../controllers/jsonController.js";
+import { updatePhotoTags, getPhotoTags, addPhoto, getAll, getById, patchById, removeById } from "../controllers/jsonController.js";
 import { saveFile, deleteFile } from "../controllers/fileController.js";
 import getRequestData from "../utils/getRequestData.js";
 import sendJson from "../utils/sendJson.js";
@@ -67,41 +67,44 @@ const imageRouter = async (req, res) => {
 		try{
             const body = JSON.parse(await getRequestData(req));
 
-            let taggerId = "Unknown";
+            const tags = body.tags || body.tag;
+
+            if(!body.id || !tags){
+                return sendJson(res, 400, { message: "Fileds 'id' and 'tags' are required " });
+            }
+
+            const updatedPhoto = updatePhotoTags(body.id, tags);
+            if (!updatedPhoto) {
+                return sendJson(res, 404, { message: "Photo not found" });
+            }
+
             if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
                 const token = req.headers.authorization.split(" ")[1];
                 try {
                     const decoded = jsonwebtoken.verify(token, JWT_SECRET);
-                    taggerId = decoded.id;
-                } catch (e) {
-                    return sendJson(res, 401, { message: "Invalid token" });
+                    const taggerId = decoded.id;
+
+                    if (updatedPhoto.authorEmail) {
+                        const authorClient = clients.find(client => client.userEmail == updatedPhoto.authorEmail);
+
+                        if (authorClient) {
+                            const messageText = `User with id: ${taggerId} just tagged your photo!`;
+                            // Przekazujemy clientId (np. ID-12345) do kontrolera
+                            unicastNotification(authorClient.clientId, messageText);
+                            console.log(`[SSE] Wysłano powiadomienie unicast do ${updatedPhoto.authorEmail}`);
+                        } else {
+                            console.log(`[SSE] Otagowano zdjęcie, ale autor (${updatedPhoto.authorEmail}) nie ma otwartej karty nasłuchiwania w przeglądarce.`);
+                        }
+                    }
+                } catch (err) {
+                    console.error("[JWT Error in Tags]:", err.message);
                 }
             }
 
-            const updatedPhoto = updatePhotoTagsMass(body.id, body.tags);
-            if(!updatedPhoto){
-                return sendJson(res, 404, { message: "The photo was not found" });
-            }
-
-            if(updatedPhoto.authorEmail){
-                const authorClient = clients.find(client => client.userEmail == updatedPhoto.authorEmail);
-                if(authorClient){
-                    const messageText = `User with id: ${taggerId} just tagged your photo!`;
-                    unicastNotification(updatedPhoto.authorEmail, messageText);
-                }
-            }
-
-            return sendJson(res, 200 ,updatedPhoto)
+            return sendJson(res, 200, updatedPhoto);
         } catch(err){
-            return sendJson(res, 500, { message: "Error aplying mass tags" });
+            return sendJson(res, 500, { message: "Error aplying tags: " + err.message });
         }
-	}
-
-	if(url == "/api/photos/tags/mass" && method == "PATCH"){
-		const body = JSON.parse(await getRequestData(req));
-		
-		const updatedPhoto = updatePhotoTagsMass(body.id, body.tags);
-		return updatedPhoto ? sendJson(res, 200, updatedPhoto) : sendJson(res, 404, { message: "Photo not found" });
 	}
 
 	const tagsMatch = url.match(/^\/api\/photos\/tags\/(\d+)$/);

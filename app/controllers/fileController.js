@@ -11,8 +11,8 @@ export const saveFile = (req) => new Promise((resolve, reject) => {
         if (err) return reject(err);
 
         try {
-            const album = String(fields.album || "default");
-            const file =files.file; // [0]
+            const album = String(fields.album || "user_album");
+            const file = files.file; // [0]
 
             console.log(file);
 

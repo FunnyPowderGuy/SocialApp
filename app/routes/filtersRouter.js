@@ -28,7 +28,7 @@ const filtersRouter = async (req, res) =>{
 			const updatedPhoto = await applyFilter(id, lastChange, params);
 			return updatedPhoto ? sendJson(res, 200, updatedPhoto) : sendJson(res, 404, { message: "Photo not found" });
 		} catch(err){
-			return sendJson(res, 500, { message: "Error aplying filters" });
+			return sendJson(res, 500, { message: "Error aplying filters" + err.message });
 		}
 	}
 

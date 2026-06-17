@@ -1,2 +1,2 @@
 ### PATCH - 3.3 get zdjęcia
-GET http://localhost:3000/api/getimage/1781469158509 HTTP/1.1
+GET http://localhost:3000/api/getimage/1781713346335 HTTP/1.1

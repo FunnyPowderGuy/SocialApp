@@ -17,7 +17,7 @@ Content-Type: image/jpeg
 
 ### 2
 # otagowanie tego zdjęcia (widać pod /api/photos) (nie wymaga usera)
-PATCH http://localhost:3000/api/photos/tags/mass
+PATCH http://localhost:3000/api/photos/tags
 Content-Type: application/json
 
 {
@@ -31,8 +31,7 @@ GET http://localhost:3000/api/photos
 
 
 ### 3
-# użycie filtra na tym zdjęciu i pobranie go (nie wymaga usera)-
-# @name applyFilter
+# użycie filtra na tym zdjęciu i pobranie go (nie wymaga usera)
 PATCH http://localhost:3000/api/filters HTTP/1.1
 Content-Type: application/json
 
@@ -42,7 +41,7 @@ Content-Type: application/json
 }
 
 ### GET dla punktu 3
-GET http://localhost:3000/api/getimage?id={{photoId}}&filter=grayscale
+GET http://localhost:3000/api/getimage/{{photoId}}/filter/grayscale
 
 ### 4 rejestracja
 # zarejestrowanie, logowanie i uzyskanie tokenu do autoryzacji usera (widać pod /api/user) 
@@ -69,8 +68,9 @@ Content-Type: application/json
 ### GET dla punktu 4
 GET http://localhost:3000/api/user HTTP/1.1
 
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTc4MTY5MjEyNzg0NiwiZW1haWwiOiJtbWFrYXJ5azk5QHVjemVuLnRsLmtyYWtvdy5wbCIsIm5hbWUiOiJNYXRldXN6IiwiaWF0IjoxNzgxNjkyMTMyLCJleHAiOjE3ODE3Nzg1MzJ9.G5QHo7jPLFR-TKJKGcrRtrSgz4xbTSWAaLMQJIga0WI
-### 5
+@token = {{loginUser.response.body.token}}
+
+### Aktualizacja danych
 # aktualizacja danych osobowych usera, po autoryzacji tokenem (widać pod /api/user)
 PATCH http://localhost:3000/api/profile
 Authorization: Bearer {{token}}
@@ -83,6 +83,10 @@ Content-Type: application/json
 
 ### GET dla punktu 5
 GET http://localhost:3000/api/profile HTTP/1.1
+Authorization: Bearer {{token}}
+
+### GET dla punktu 5
+GET http://localhost:3000/api/user HTTP/1.1
 Authorization: Bearer {{token}}
 
 ### 6
@@ -99,7 +103,7 @@ Content-Type: image/png
 ------FormBoundary1234
 
 ### GET dla punktu 6
-# Obecnie nie działa pod /api/user a pod /api/profile napraw to
+GET http://localhost:3000/api/user HTTP/1.1
 
 ### 7 pobranie tych danych (zdjęcia, dane osobowe) z poziomu rest clienta 
 @ClientId = ID-12345
@@ -116,28 +120,8 @@ Content-Type: application/json
     "message": "Uwaga! To jest ważny komunikat dla wszystkich użytkowników!"
 }
 
-### Unicast po otagowaniu zdjęcia przez innego usera (nie działa jak narazie)
-PATCH http://localhost:3000/api/photos/tags/mass
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-	"id": "{{photoId}}",
-	"tags": ["zieleń", "orbita", "domek"]
-}
-
-
-
-
-###############################################################################
-### PORADNIK I SEKRETY TESTOWANIA PUNKTU 9 (UNICAST SSE)
-### W tym teście wcielasz się w rolę dwóch różnych osób:
-###   - Użytkownik A (np. mmakaryk99@uczen.tl.krakow.pl) -> wrzuca zdjęcie i czeka w przeglądarce
-###   - Użytkownik B (np. janusz@test.pl) -> loguje się w rest client i taguje zdjęcie Mateusza
-###############################################################################
-
-### KROK 1: Rejestracja Użytkownika B (Sprawcy / Tagującego)
-### Musimy mieć drugie konto, żeby system wiedział, że to nie Ty sam siebie tagujesz!
+### 9
+### Rejestracja drugiego konta
 POST http://localhost:3000/api/user/register
 Content-Type: application/json
 
@@ -149,8 +133,7 @@ Content-Type: application/json
 }
 
 
-### KROK 2: Logowanie Użytkownika B (Janusza)
-### Wyślij to zapytanie i skopiuj jego wygenerowany token z odpowiedzi!
+### logowanie użytkownika Janusz
 # @name loginUserB
 POST http://localhost:3000/api/user/login
 Content-Type: application/json
@@ -160,53 +143,48 @@ Content-Type: application/json
     "password": "JanuszoweHaslo123"
 }
 
-### TUTAJ WKLEJASZ TOKEN JANUSZA (UŻYTKOWNIKA B), KTÓRY TUŻ PRZED CHWILĄ SKOPIOWAŁEŚ:
-@tokenJanusza = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTc4MTY5MjEwMDI2NSwiZW1haWwiOiJqYW51c3pAdGVzdC5wbCIsIm5hbWUiOiJKYW51c3oiLCJpYXQiOjE3ODE2OTIxMDcsImV4cCI6MTc4MTc3ODUwN30.SZYzsBITbS2B3HqP4GTiAdhfh4e6JNXFBzs8ZUuMg-Y
+@tokenJanusza = {{loginUserB.response.body.token}}
 
-
-### KROK 3: Uruchomienie nasłuchiwania dla Mateusza (Użytkownika A)
-### Instrukcja: 
-### 1. Weź swój token Mateusza (ten z punktu 4 na samej górze pliku, zmienna {{token}}).
-### 2. Otwórz nową kartę w przeglądarce i wklej tam link:
-###    http://localhost:3000/api/notifications/subscribe?token=TWÓJ_TOKEN_MATEUSZA
-### 3. Karta zacznie się ładować i pokaże obiekt z Twoim adresem email oraz clientId. 
-### 4. NIE ZAMYKAJ TEJ KARTY. Zostaw ją otwartą na boku ekranu.
-
-
-### KROK 4: Mateusz wrzuca zdjęcie (Musi być zalogowany, aby stać się autorem!)
-### Wyślij to zapytanie używając swojego głównego tokenu ({{token}}).
+### Uploaduje zdjęcia jako mateusz
 # @name uploadPhotoByMateusz
 POST http://localhost:3000/api/photos
 Authorization: Bearer {{token}}
-Content-Type: multipart/form-data; boundary=boundary12345
+Content-Type: multipart/form-data; boundary=boundry12345
 
---boundary12345
+--boundry12345
 Content-Disposition: form-data; name="file"; filename="view.jpg"
 Content-Type: image/jpeg
 
 < ./image.jpg
---boundary12345--
+--boundry12345--
 
-
-### Złapanie ID nowo utworzonego zdjęcia Mateusza
-@photoIdMateusza = {{uploadPhotoByMateusz.response.body.id}}
-
-
-### KROK 5: Janusz wkracza do akcji i taguje zdjęcie Mateusza!
-### Zwróć uwagę, że w nagłówku podajemy {{tokenJanusza}}, ale tagujemy @photoIdMateusza.
-PATCH http://localhost:3000/api/photos/tags/mass
+### Otagowanie zdjęcia użytkownikiem janusz
+### Tagi
+PATCH http://localhost:3000/api/photos/tags
 Authorization: Bearer {{tokenJanusza}}
 Content-Type: application/json
 
 {
-    "id": "{{photoIdMateusza}}",
-    "tags": [
-        {"name": "woda"}, 
-        {"name": "niebo"}
-    ]
+	"id": "1781712452923",
+	"tags": ["woda", "krajobraz", "krakow"]
 }
 
-### 💥 FINAŁ TESTU:
-### W ułamku sekundy po wysłaniu powyższego zapytania PATCH, spójrz na kartę przeglądarki,
-### którą otworzyłeś w KROKU 3. Powinien dopisać się tam automatycznie komunikat typu:
-### data: {"type":"unicast","message":"user o <id: 171862534123> otagował Twoje zdjęcie","timestamp":"..."}
+### Tag
+PATCH http://localhost:3000/api/photos/tags
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+	"id": "1781712452923",
+	"tag": ["retro"]
+}
+
+
+### ewentualny test unicast
+POST http://localhost:3000/api/notifications/send
+Content-Type: application/json
+
+{
+    "to": "ID-OKW34",
+    "message": "Mega tajna wiadomosc ale tylko dla Ciebie!"
+}

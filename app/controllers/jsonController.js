@@ -9,7 +9,6 @@ export const getAll = () => data;
 
 export const getById = (id) => data.find(p => String(p.id) === String(id));
 
-// lekcja 1
 export const patchById = (id, status) => {
 	const photo = getById(id);
 	if (!photo) return null;
@@ -26,26 +25,32 @@ export const removeById = (id) => {
 	return removed;
 };
 
-// lekcja 2
-export const updatePhotoTags = (id, newTagObj) =>{
-	const photo = getById(id);
-	if(!photo) return null;
-
-	if(!photo.tags) photo.tags = [];
-	photo.tags.push({ name: newTagObj.name });
-
-	return photo;
-}
-
-export const updatePhotoTagsMass = (id, newTagsArray) => {
+export const updatePhotoTags = (id, tags) => {
 	const photo = getById(id);
 	if(!photo) return null;
 
 	if(!photo.tags) photo.tags = [];
 
-	newTagsArray.forEach(tag => {
-		photo.tags.push({ name: tag.name });
-	})
+	let tagsArray;
+	if(Array.isArray(tags)){
+		tagsArray = tags;
+	} else{
+		tagsArray = [tags];
+	}
+
+	for(const tag of tagsArray){
+		if(tag){
+			let tagName;
+
+			if(typeof tag == "object" && tag != null){
+				tagName = tag.name;
+			} else{
+				tagName = tag;
+			}
+
+			if(tagName) photo.tags.push({ name: tagName });
+		}
+	}
 
 	return photo;
 }
